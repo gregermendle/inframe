@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="title" content="InFrame">
-    <meta name="description" content="customize your own LinkedIn style avatar frame.">
-    <meta name="keywords" content="custom linkedin frame, avatar generator, frame meme">
-    <meta name="robots" content="index, nofollow">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="language" content="English">
+    <meta name="title" content="InFrame" />
+    <meta
+      name="description"
+      content="customize your own LinkedIn style avatar frame."
+    />
+    <meta
+      name="keywords"
+      content="custom linkedin frame, avatar generator, frame meme"
+    />
+    <meta name="robots" content="index, nofollow" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="English" />
     <meta name="color-scheme" content="light" />
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://inframe.gregermendle.com" />
     <meta property="og:title" content="InFrame" />
-    <meta property="og:description" content="customize your own LinkedIn style avatar frame." />
-    <meta property="og:image" content="https://inframe.gregermendle.com/preview.png" />
+    <meta
+      property="og:description"
+      content="customize your own LinkedIn style avatar frame."
+    />
+    <meta
+      property="og:image"
+      content="https://inframe.gregermendle.com/preview.png"
+    />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://inframe.gregermendle.com" />
     <meta property="twitter:title" content="InFrame" />
-    <meta property="twitter:description" content="customize your own LinkedIn style avatar frame." />
-    <meta property="twitter:image" content="https://inframe.gregermendle.com/preview.png" />
+    <meta
+      property="twitter:description"
+      content="customize your own LinkedIn style avatar frame."
+    />
+    <meta
+      property="twitter:image"
+      content="https://inframe.gregermendle.com/preview.png"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png" />
     <title>InFrame</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -146,12 +164,19 @@
       #frame-text {
         margin-top: 8px;
       }
+      p {
+        padding: 0 80px;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <main>
       <canvas id="frame" width="200" height="200"></canvas>
-      <div>right click or long press to save!</div>
+      <p>
+        click above to add your own image. square images work best.<br />right
+        click or long press to save!
+      </p>
       <input id="frame-text" type="text" value="#SMELLYBOY" />
       <div class="options">
         <div class="color-control">
@@ -181,6 +206,7 @@
       let canvas = document.getElementById("frame");
       let frameColorPicker = document.getElementById("frame-color");
       let textColorPicker = document.getElementById("text-color");
+      let imageFile = document.getElementById("image-file");
       let context = canvas.getContext("2d");
       let frameColor = "#D67D00";
       let textColor = "#FFFFFF";
@@ -272,6 +298,49 @@
 
       frameTextInput.addEventListener("input", (e) => {
         animate(() => draw(e.target.value));
+      });
+
+      function loadImage (file) {
+        const reader = new FileReader();
+
+        reader.readAsDataURL(file);
+            reader.addEventListener(
+              "load",
+              () => {
+                image.src = reader.result;
+                draw(frameTextInput.value);
+              },
+              false
+            );
+      }
+
+      canvas.addEventListener("drop", (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.items) {
+          const item = e.dataTransfer.items[0];
+          if (item.kind === "file") {
+            const file = item.getAsFile();
+            if (file.type.startsWith("image/")) {
+              loadImage(file);
+            }
+          }
+        }
+      });
+
+      canvas.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
+
+      canvas.addEventListener("click", () => {
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.addEventListener("change", (e) => {
+          if (e.target.files.length === 1) {
+            const file = e.target.files[0];
+            loadImage(file);
+          }
+        });
+        fileInput.click();
       });
     </script>
   </body>
