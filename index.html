@@ -148,6 +148,23 @@
         font-size: 10px;
         z-index: 10;
       }
+      #download {
+        color: white;
+        background-color: black;
+        border: 2px solid black;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-weight: 600;
+        text-align: center;
+        font-size: 10px;
+        z-index: 10;
+      }
+      button:focus-visible {
+        outline-color: pink;
+        outline-style: solid;
+        outline-width: 6px;
+        outline-offset: 0;
+      }
       .color-control > label > span {
         background-color: black;
         border-radius: 4px;
@@ -173,9 +190,9 @@
   <body>
     <main>
       <canvas id="frame" width="200" height="200"></canvas>
+      <button id="download">SAVE IMAGE</button>
       <p>
-        click above to add your own image. square images work best.<br />right
-        click or long press to save!
+        click above to add your own image.<br /> square images work best.
       </p>
       <input id="frame-text" type="text" value="#SMELLYBOY" />
       <div class="options">
@@ -205,6 +222,7 @@
       let frameTextInput = document.getElementById("frame-text");
       let canvas = document.getElementById("frame");
       let frameColorPicker = document.getElementById("frame-color");
+      let downloadButton = document.getElementById("download");
       let textColorPicker = document.getElementById("text-color");
       let imageFile = document.getElementById("image-file");
       let context = canvas.getContext("2d");
@@ -313,6 +331,13 @@
               false
             );
       }
+
+      download.addEventListener("click", () => {
+        const link = document.createElement('a');
+        link.download = 'download.png';
+        link.href = document.getElementById('frame').toDataURL()
+        link.click();
+      });
 
       canvas.addEventListener("drop", (e) => {
         e.preventDefault();
