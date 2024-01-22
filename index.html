@@ -8,18 +8,143 @@
       rel="stylesheet"
     />
     <style>
+      html,
+      body {
+        height: 100%;
+      }
       body {
         font-family: Inter, sans;
-        margin: 0px;
-        padding: 0px;
+        font-size: 12px;
+        height: 100%;
+        margin: 0;
+        background-color: #fff2b0;
+      }
+      *,
+      *:before,
+      *:after {
+        box-sizing: border-box;
+      }
+      main {
+        height: 100%;
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      input[type="color"] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: transparent;
+        width: 75px;
+        height: 75px;
+        border: none;
+        cursor: pointer;
+        outline: none;
+      }
+      input[type="color"]::-webkit-color-swatch {
+        border-radius: 50%;
+        border: 2px solid black;
+        box-shadow: 4px 4px 0 0 black;
+        transition: transform 250ms, box-shadow 250ms;
+      }
+      input[type="color"]::-moz-color-swatch {
+        border-radius: 50%;
+        border: 2px solid black;
+        box-shadow: 4px 4px 0 0 black;
+        transition: transform 250ms, box-shadow 250ms;
+      }
+      input[type="color"]:focus::-webkit-color-swatch {
+        outline-color: pink;
+        outline-width: 6px;
+        outline-style: solid;
+      }
+      input[type="color"]:focus::-moz-color-swatch {
+        outline-color: pink;
+        outline-width: 6px;
+        outline-style: solid;
+      }
+      input[type="color"]:focus::-webkit-color-swatch,
+      input[type="color"]:hover::-webkit-color-swatch {
+        box-shadow: 6px 6px 0 0 black;
+        transform: translate(-2px, -2px);
+      }
+      input[type="color"]:focus::-moz-color-swatch,
+      input[type="color"]:hover::-moz-color-swatch {
+        box-shadow: 6px 6px 0 0 black;
+        transform: translate(-2px, -2px);
+      }
+      input[type="color"]:focus ~ label,
+      input[type="color"]:hover ~ label {
+        transform: translate(-2px, -2px);
+      }
+      input[type="text"] {
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 2px solid black;
+        box-shadow: 4px 4px 0 0 black;
+        transition: transform 250ms, box-shadow 250ms;
+      }
+      input[type="text"]:focus-visible {
+        outline-color: pink;
+        outline-style: solid;
+        outline-width: 6px;
+        outline-offset: 0;
+      }
+      .color-control {
+        display: grid;
+        align-items: center;
+        justify-self: center;
+      }
+      .color-control > * {
+        grid-area: 1 / 1;
+        transition: all 250ms;
+      }
+      .color-control > label {
+        color: white;
+        text-align: center;
+        font-size: 10px;
+        z-index: 10;
+      }
+      .color-control > label > span {
+        background-color: black;
+        border-radius: 4px;
+        padding: 1px 4px;
+      }
+      .options {
+        padding-top: 12px;
+        display: flex;
+        gap: 8px;
+      }
+      #frame {
+        margin-bottom: 12px;
+      }
+      #frame-text {
+        margin-top: 8px;
       }
     </style>
   </head>
-
   <body>
-    <canvas id="frame" width="578" height="578"></canvas>
-    <input id="frame-text" />
-    <input id="color" type="color" value="rgb(69, 30, 100)" />
+    <main>
+      <canvas id="frame" width="200" height="200"></canvas>
+      <div>right click or long press to save!</div>
+      <input id="frame-text" type="text" value="#SMELLYBOY" />
+      <div class="options">
+        <div class="color-control">
+          <input id="frame-color" type="color" value="#D67D00" />
+          <label for="frame-color">
+            <span> FRAME </span>
+          </label>
+        </div>
+        <div class="color-control">
+          <input id="text-color" type="color" value="#FFFFFF" />
+          <label for="text-color">
+            <span> TEXT </span>
+          </label>
+        </div>
+      </div>
+    </main>
     <script>
       let inter = new FontFace(
         "Inter",
@@ -27,23 +152,27 @@
       );
 
       let image = new Image();
-      image.src =
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKqAPhtu1u5tDwBglj_KWyUOyKg-PBGbTWdKWn1nvbeqxzjz7aVrVuuvjzBCCB-_lf5oU&usqp=CAU";
+      image.src = "./kitty.jpg";
 
       let frameTextInput = document.getElementById("frame-text");
       let canvas = document.getElementById("frame");
+      let frameColorPicker = document.getElementById("frame-color");
+      let textColorPicker = document.getElementById("text-color");
       let context = canvas.getContext("2d");
+      let frameColor = "#D67D00";
+      let textColor = "#FFFFFF";
+      let ribbonWidth = 70;
 
       function draw(str) {
+        str = str.toUpperCase();
         let len = str.length;
         let s;
 
         context.reset();
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
-        let radius = 150;
+        let radius = 100;
 
-        // draw circle underneath text
         context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
         context.clip();
         context.drawImage(
@@ -54,34 +183,28 @@
           2 * radius
         );
         context.save();
-
         context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
 
-        // Create a radial gradient
-        // The inner circle is at x=110, y=90, with radius=30
-        // The outer circle is at x=100, y=100, with radius=70
         const gradient = context.createRadialGradient(
           centerX - radius,
           centerY + radius,
           radius,
           centerX + radius / 2,
           centerY - radius,
-          radius + radius / 3
+          radius + radius / 3 + 10
         );
 
-        // Add three color stops
-        gradient.addColorStop(0.9, "rgba(69, 30, 100, 1.0)");
-        gradient.addColorStop(1, "rgba(69, 30, 100, 0.2)");
+        gradient.addColorStop(0.9, frameColor);
+        gradient.addColorStop(1, `${frameColor}00`);
 
-        // Set the fill style and draw a rectangle
         context.strokeStyle = gradient;
-        context.lineWidth = 90;
+        context.lineWidth = ribbonWidth;
         context.stroke();
         context.save();
 
-        context.font = "24px Inter";
+        context.font = "16px Inter";
         context.textAlign = "center";
-        context.fillStyle = "white";
+        context.fillStyle = textColor;
 
         let strWidth = context.measureText(str).width;
         let angle = Math.PI * (strWidth / (2 * radius));
@@ -94,27 +217,38 @@
           s = str[n];
           context.rotate(-1 * (angle / len));
           context.save();
-          context.translate(0, radius - 15);
+          context.translate(0, radius - 12);
           context.fillText(s, 0, 0);
           context.restore();
         }
         context.restore();
       }
+
       image.onload = () => {
         inter.load().then((font) => {
           document.fonts.add(font);
-          requestAnimationFrame(() => {
-            draw("#BACKANDBODYHURTS");
-          });
+          draw(frameTextInput.value);
         });
       };
 
       let request;
-      frameTextInput.addEventListener("input", (e) => {
+      const animate = (cb) => {
         cancelAnimationFrame(request);
-        request = requestAnimationFrame(() => {
-          draw(e.target.value.toUpperCase());
-        });
+        request = requestAnimationFrame(cb);
+      };
+
+      frameColorPicker.addEventListener("input", (e) => {
+        frameColor = e.target.value;
+        animate(() => draw(frameTextInput.value));
+      });
+
+      textColorPicker.addEventListener("input", (e) => {
+        textColor = e.target.value;
+        animate(() => draw(frameTextInput.value));
+      });
+
+      frameTextInput.addEventListener("input", (e) => {
+        animate(() => draw(e.target.value));
       });
     </script>
   </body>
